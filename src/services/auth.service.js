@@ -3,7 +3,12 @@ import { hashPassword, comparePassword } from '../utils/password.js';
 import { generarToken } from '../utils/token.js';
 import * as UsuarioRepository from '../repositories/usuario.repository.js';
 
-export const registrar = async ({ nombre, email, password }) => {
+export const registrar = async ({
+  nombre,
+  email,
+  password,
+  rol = 'COORDINADOR',
+}) => {
   if (!nombre || !email || !password) {
     throw new AppError(
       'Todos los campos son requeridos: nombre, email, password',
@@ -12,24 +17,50 @@ export const registrar = async ({ nombre, email, password }) => {
   }
 
   if (password.length < 8) {
-    throw new AppError('La contraseña debe tener al menos 8 caracteres', 400);
+    throw new AppError(
+      'La contraseña debe tener al menos 8 caracteres',
+      400,
+    );
   }
 
   if (password.length > 72) {
-    throw new AppError('La contraseña no puede exceder 72 caracteres', 400);
+    throw new AppError(
+      'La contraseña no puede exceder 72 caracteres',
+      400,
+    );
+  }
+
+  if (!['ADMIN', 'COORDINADOR'].includes(rol)) {
+    throw new AppError(
+      'El rol debe ser ADMIN o COORDINADOR',
+      400,
+    );
   }
 
   const existente = await UsuarioRepository.findByEmail(email);
 
   if (existente) {
-    throw new AppError('Ya existe una cuenta registrada con ese email', 409);
+    throw new AppError(
+      'Ya existe una cuenta registrada con ese email',
+      409,
+    );
   }
 
   const passwordHash = await hashPassword(password);
 
-  const nuevo = await UsuarioRepository.save({ nombre, email, passwordHash });
+  const nuevo = await UsuarioRepository.save({
+    nombre,
+    email,
+    passwordHash,
+    rol,
+  });
 
-  return { id: nuevo.id, nombre: nuevo.nombre, email: nuevo.email };
+  return {
+    id: nuevo.id,
+    nombre: nuevo.nombre,
+    email: nuevo.email,
+    rol: nuevo.rol,
+  };
 };
 
 export const iniciarSesion = async ({ email, password }) => {

@@ -1,9 +1,32 @@
 import { prisma } from '../config/prisma.js';
 
-// findAll - Devuelve todos los alumnos, con opción de filtrar por grado
-export const findAll = ({ grado } = {}) => {
+// findAll - Devuelve todos los alumnos, con opción de filtrar por grado o sección
+// findAll - Devuelve alumnos con filtros de búsqueda, grado y sección
+export const findAll = ({ busqueda, grado, seccion } = {}) => {
   return prisma.alumno.findMany({
-    where: grado ? { grado } : undefined,
+    where: {
+      ...(grado ? { grado } : {}),
+      ...(seccion ? { seccion } : {}),
+
+      ...(busqueda
+        ? {
+            OR: [
+              {
+                nombre: {
+                  contains: busqueda,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                apellido: {
+                  contains: busqueda,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+          }
+        : {}),
+    },
   });
 };
 

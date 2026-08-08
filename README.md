@@ -1,227 +1,485 @@
-# Colegio San Marcos - API REST
+# Complejo Educativo Uruguay
 
-API REST para la gestión de alumnos, con sistema de autenticación y autorización basado en JWT. Construida con Node.js, Express y Prisma ORM sobre PostgreSQL.
+Sistema web de gestión escolar desarrollado para administrar alumnos y usuarios del **Complejo Educativo Uruguay**.
 
-## Tecnologías utilizadas
+El proyecto utiliza una arquitectura separada de **frontend y backend**, con autenticación mediante JWT, control de acceso por roles y persistencia de datos mediante PostgreSQL y Prisma.
 
-- **Node.js** con ES Modules (`import`/`export`)
-- **Express** - Framework web
-- **Prisma** - ORM para PostgreSQL (con `@prisma/adapter-pg`)
-- **PostgreSQL** - Base de datos relacional
-- **jsonwebtoken (JWT)** - Autenticación basada en tokens
-- **bcryptjs** - Encriptación de contraseñas
-- **cors** - Manejo de peticiones cross-origin
-- **dotenv** - Manejo de variables de entorno
+## Tecnologías
 
-## Estructura del proyecto
+### Frontend
+- React
+- Vite
+- JavaScript
+- CSS
+- Fetch API
+- React Hooks (`useState`, `useEffect`)
 
+### Backend
+- Node.js
+- Express
+- JavaScript ES Modules
+- JWT (`jsonwebtoken`)
+- bcrypt
+- Prisma ORM
+- PostgreSQL
+
+## Funcionalidades
+
+### Autenticación
+- Inicio de sesión con email y contraseña.
+- Generación y verificación de tokens JWT.
+- Perfil del usuario autenticado.
+- Cambio de contraseña.
+- Manejo centralizado de errores.
+
+### Gestión de usuarios
+Roles disponibles:
+- `ADMIN`
+- `COORDINADOR`
+
+El administrador puede:
+- Registrar usuarios.
+- Registrar usuarios como `ADMIN` o `COORDINADOR`.
+- Consultar la lista de usuarios.
+- Cambiar contraseñas.
+
+### Gestión de alumnos
+Permite:
+- Registrar alumnos.
+- Editar alumnos.
+- Eliminar alumnos.
+- Buscar por nombre o apellido.
+- Filtrar por grado.
+- Filtrar por sección.
+- Limpiar filtros.
+- Mostrar la cantidad de alumnos encontrados.
+
+## Arquitectura
+
+### Backend
+
+```text
+backend/
+└── src/
+    ├── config/
+    │   └── prisma.js
+    ├── controllers/
+    │   └── auth.controller.js
+    ├── errors/
+    │   └── appError.js
+    ├── middlewares/
+    │   ├── auth.js
+    │   ├── requireRole.js
+    │   └── errorHandler.js
+    ├── repositories/
+    │   └── usuario.repository.js
+    ├── routes/
+    │   └── auth.routes.js
+    ├── services/
+    │   └── auth.service.js
+    ├── utils/
+    │   ├── password.js
+    │   └── token.js
+    └── index.js
 ```
-├── index.js                      # Punto de entrada del servidor
-├── prisma/
-│   ├── schema.prisma              # Definición de modelos y esquema de BD
-│   └── migrations/                # Historial de migraciones
-├── src/
-│   ├── config/
-│   │   └── prisma.js              # Cliente de Prisma
-│   ├── routes/
-│   │   ├── alumno.routes.js       # Endpoints de alumnos
-│   │   └── auth.routes.js         # Endpoints de autenticación
-│   ├── controllers/
-│   │   ├── alumno.controller.js
-│   │   └── auth.controller.js
-│   ├── services/
-│   │   ├── alumno.service.js      # Lógica de negocio de alumnos
-│   │   └── auth.service.js        # Lógica de negocio de autenticación
-│   ├── repositories/
-│   │   ├── alumno.repository.js   # Acceso a datos de alumnos
-│   │   └── usuario.repository.js  # Acceso a datos de usuarios
-│   ├── middlewares/
-│   │   ├── apiKey.js               # Validación de API key
-│   │   ├── auth.js                 # Validación de JWT (requireAuth)
-│   │   ├── requireRole.js          # Validación de roles (RBAC)
-│   │   └── errorHandler.js         # Manejo centralizado de errores
-│   ├── utils/
-│   │   ├── password.js             # hashPassword / comparePassword (bcrypt)
-│   │   └── token.js                # generarToken / verificarToken (JWT)
-│   └── errors/
-│       └── appError.js             # Clase de error personalizada
+
+### Frontend
+
+```text
+frontend/
+└── src/
+    ├── components/
+    │   ├── Alumnos.jsx
+    │   ├── Alumnos.css
+    │   ├── Login.jsx
+    │   └── Usuarios.jsx
+    ├── services/
+    │   ├── auth.js
+    │   └── alumnos.js
+    └── ...
 ```
 
-## Requisitos previos
+> Los nombres exactos de algunos archivos pueden variar según la organización actual del proyecto.
 
-- Node.js (v18 o superior recomendado)
-- PostgreSQL instalado y corriendo localmente (o accesible remotamente)
-- npm
+## Base de datos
+
+La aplicación utiliza PostgreSQL mediante Prisma.
+
+### Usuario
+
+Campos principales:
+- `id`
+- `nombre`
+- `email`
+- `passwordHash`
+- `rol`
+
+### Alumno
+
+La entidad de alumnos contiene la información necesaria para la gestión escolar, incluyendo:
+- nombre
+- apellido
+- grado
+- sección
+
+Las contraseñas se almacenan mediante hash y nunca como texto plano.
+
+## Variables de entorno
+
+Crear un archivo `.env` en el backend:
+
+```env
+DATABASE_URL="postgresql://USUARIO:CONTRASEÑA@localhost:5432/NOMBRE_BASE_DATOS"
+JWT_SECRET="una_clave_secreta_segura"
+```
+
+No subir `.env` al repositorio.
+
+En `.gitignore`:
+
+```gitignore
+.env
+node_modules/
+dist/
+```
 
 ## Instalación
 
-1. Clonar o descargar el proyecto y entrar a la carpeta:
-
-   ```bash
-   cd Modulo6_tarea2
-   ```
-
-2. Instalar las dependencias:
-
-   ```bash
-   npm install
-   ```
-
-3. Crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
-
-   ```env
-   PORT=3000
-   DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/nombre_basedatos?schema=public"
-   JWT_SECRET=una_clave_secreta_larga_y_aleatoria
-   API_KEY=una_clave_para_proteger_endpoints_sensibles
-   ```
-
-   > 💡 Puedes generar un `JWT_SECRET` seguro con:
-   > `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-
-4. Crear la base de datos en PostgreSQL (si aún no existe):
-
-   ```bash
-   psql -U postgres -p 5432
-   ```
-   ```sql
-   CREATE DATABASE nombre_basedatos;
-   \q
-   ```
-
-5. Ejecutar las migraciones de Prisma para crear las tablas:
-
-   ```bash
-   npx prisma migrate dev
-   ```
-
-6. Generar el cliente de Prisma (normalmente ya se genera con el paso anterior):
-
-   ```bash
-   npx prisma generate
-   ```
-
-## Uso
-
-Levantar el servidor en modo desarrollo (con recarga automática):
+### Backend
 
 ```bash
-npm run dev
+cd backend
+npm install
 ```
 
-El servidor quedará disponible en `http://localhost:3000` (o el puerto definido en `.env`).
+Configurar PostgreSQL y el archivo `.env`.
 
-Para explorar visualmente la base de datos:
+Ejecutar Prisma:
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+Para visualizar los datos:
 
 ```bash
 npx prisma studio
 ```
 
-## Modelos de datos
+Iniciar el backend:
 
-### Alumno
+```bash
+npm run dev
+```
 
-| Campo    | Tipo   | Descripción           |
-|----------|--------|------------------------|
-| id       | Int    | Identificador único (autoincremental) |
-| nombre   | String | Nombre del alumno |
-| apellido | String | Apellido del alumno |
-| grado    | String | Grado que cursa |
-| seccion  | String | Sección asignada |
+Servidor:
 
-### Usuario
+```text
+http://localhost:3000
+```
 
-| Campo        | Tipo   | Descripción |
-|--------------|--------|-------------|
-| id           | Int    | Identificador único (autoincremental) |
-| nombre       | String | Nombre del usuario |
-| email        | String | Correo electrónico (único) |
-| passwordHash | String | Contraseña encriptada con bcrypt |
-| rol          | Rol    | `ADMIN` o `COORDINADOR` (por defecto `COORDINADOR`) |
+### Frontend
 
-## Endpoints
+En otra terminal:
 
-### Autenticación (`/api/auth`)
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-| Método | Endpoint                          | Protección                  | Descripción |
-|--------|------------------------------------|------------------------------|-------------|
-| POST   | `/api/auth/registro`               | Pública                      | Registra un nuevo usuario |
-| POST   | `/api/auth/login`                  | Pública                      | Inicia sesión y devuelve un token JWT |
-| GET    | `/api/auth/perfil`                 | Requiere token (`requireAuth`) | Devuelve los datos del usuario autenticado |
-| PATCH  | `/api/auth/usuarios/:id/password`  | Pública*                     | Cambia la contraseña de un usuario |
-| GET    | `/api/auth/usuarios`               | Token + rol `ADMIN`          | Lista todos los usuarios registrados |
+Vite mostrará la dirección del frontend, normalmente:
 
-**Ejemplo - Registro**
-```json
+```text
+http://localhost:5173
+```
+
+## API
+
+Ruta base:
+
+```text
+http://localhost:3000/api/auth
+```
+
+### Registrar usuario
+
+```http
 POST /api/auth/registro
+```
+
+Body:
+
+```json
 {
-  "nombre": "Admin",
-  "email": "admin@test.com",
-  "password": "12345678"
+  "nombre": "Carlos",
+  "email": "carlos@example.com",
+  "password": "Password123",
+  "rol": "COORDINADOR"
 }
 ```
 
-**Ejemplo - Login**
-```json
+Los roles permitidos son:
+
+```text
+ADMIN
+COORDINADOR
+```
+
+Si no se especifica el rol, el backend utiliza `COORDINADOR`.
+
+### Iniciar sesión
+
+```http
 POST /api/auth/login
-{
-  "email": "admin@test.com",
-  "password": "12345678"
-}
 ```
-Respuesta:
+
+Body:
+
 ```json
 {
-  "usuario": { "id": 1, "nombre": "Admin", "email": "admin@test.com" },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "email": "admin@example.com",
+  "password": "Password123"
 }
 ```
 
-Las rutas protegidas requieren el header:
+La respuesta contiene los datos del usuario y el token JWT.
+
+### Perfil
+
+```http
+GET /api/auth/perfil
+Authorization: Bearer TOKEN
 ```
-Authorization: Bearer <token>
+
+### Listar usuarios
+
+```http
+GET /api/auth/usuarios
+Authorization: Bearer TOKEN
 ```
 
-### Alumnos (`/api/alumnos`)
+Esta operación requiere rol `ADMIN`.
 
-| Método | Endpoint              | Protección           | Descripción |
-|--------|------------------------|------------------------|-------------|
-| GET    | `/api/alumnos`         | Pública                | Lista todos los alumnos (admite `?grado=` como filtro) |
-| GET    | `/api/alumnos/:id`     | Pública                | Obtiene un alumno por ID |
-| POST   | `/api/alumnos`         | Requiere `x-api-key`   | Crea un nuevo alumno |
-| PATCH  | `/api/alumnos/:id`     | Pública                | Actualiza un alumno existente |
-| DELETE | `/api/alumnos/:id`     | Pública                | Elimina un alumno |
+### Cambiar contraseña
 
-**Ejemplo - Crear alumno**
+```http
+PATCH /api/auth/usuarios/:id/password
+Authorization: Bearer TOKEN
+```
+
+Body:
+
 ```json
-POST /api/alumnos
-Headers: x-api-key: <API_KEY del .env>
 {
-  "nombre": "Juan",
-  "apellido": "Pérez",
-  "grado": "5to",
-  "seccion": "A"
+  "passwordActual": "Password123",
+  "passwordNueva": "NuevaPassword123"
 }
 ```
+
+Esta operación requiere rol `ADMIN`.
 
 ## Seguridad
 
-- Las contraseñas se encriptan con **bcrypt** (12 salt rounds) antes de guardarse; nunca se almacenan ni se devuelven en texto plano.
-- La autenticación de usuarios se maneja con **JWT**, firmado con `JWT_SECRET` y con expiración de 1 hora.
-- El endpoint de creación de alumnos está protegido con una **API key** estática (`x-api-key`), útil para restringir integraciones externas.
-- El acceso a la lista de usuarios está restringido por **rol** (`ADMIN`) mediante el middleware `requireRole`.
-- Los errores se manejan de forma centralizada a través de `errorHandler.js` y la clase `AppError`, devolviendo respuestas JSON consistentes con el código HTTP adecuado (400, 401, 403, 404, 409, 500).
+El proyecto implementa:
+- Contraseñas con hash.
+- Mínimo de 8 caracteres para contraseñas.
+- Máximo de 72 caracteres.
+- Autenticación mediante JWT.
+- Middleware de autenticación.
+- Middleware de autorización por rol.
+- Separación entre controller, service y repository.
+- No exposición del `passwordHash` en respuestas públicas.
+- Manejo centralizado de errores.
 
-## Scripts disponibles
+## Roles y permisos
 
-| Comando         | Descripción |
-|------------------|-------------|
-| `npm run dev`    | Levanta el servidor con recarga automática (`node --watch`) |
+| Funcionalidad | ADMIN | COORDINADOR |
+|---|:---:|:---:|
+| Iniciar sesión | Sí | Sí |
+| Consultar perfil | Sí | Sí |
+| Gestión de alumnos | Sí | Sí |
+| Listar usuarios | Sí | No |
+| Cambiar contraseña de usuarios | Sí | No |
+| Crear ADMIN | Sí | No |
 
-## Notas
+La autorización se controla en el backend y no solamente ocultando botones en React.
 
-- Este proyecto fue desarrollado como parte de una tarea académica (Módulo 6).
-- El frontend esperado corre en `http://localhost:5173` (configurado en CORS); ajusta el origen en `index.js` si tu frontend usa otro puerto.
+## Flujo de autenticación
+
+```text
+Usuario
+   │
+   ▼
+Frontend React
+   │
+   │ email + contraseña
+   ▼
+POST /api/auth/login
+   │
+   ▼
+AuthController
+   │
+   ▼
+AuthService
+   │
+   ▼
+UsuarioRepository
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Comparación de contraseña
+   │
+   ▼
+JWT
+   │
+   ▼
+Frontend
+   │
+   ▼
+localStorage
+```
+
+Las solicitudes protegidas envían:
+
+```http
+Authorization: Bearer TOKEN
+```
+
+## Manejo de errores
+
+La aplicación utiliza `AppError` para errores controlados.
+
+Ejemplos:
+
+```text
+400 - Datos inválidos
+401 - Email o contraseña incorrectos
+403 - Permisos insuficientes
+404 - Usuario o registro no encontrado
+409 - Email ya registrado
+500 - Error interno del servidor
+```
+
+## Interfaz
+
+La aplicación incluye:
+- Pantalla de inicio de sesión.
+- Identidad institucional de **Complejo Educativo Uruguay**.
+- Gestión de alumnos.
+- Gestión de usuarios.
+- Formularios de registro y edición.
+- Búsqueda.
+- Filtros por grado y sección.
+- Tablas.
+- Edición y eliminación.
+- Cambio de contraseñas.
+- Mensajes de éxito y error.
+- Diseño responsive en proceso de mejora.
+
+## Usuarios de prueba
+
+Durante el desarrollo pueden crearse usuarios desde la interfaz o mediante Prisma Studio.
+
+Ejemplo:
+
+```text
+Nombre: Admin
+Email: admin@example.com
+Rol: ADMIN
+```
+
+No utilizar credenciales reales dentro del código fuente o repositorio.
+
+## Comandos útiles
+
+### Backend
+
+```bash
+npm install
+npm run dev
+```
+
+### Frontend
+
+```bash
+npm install
+npm run dev
+```
+
+### Prisma
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+npx prisma studio
+```
+
+## Desarrollo
+
+Se recomienda ejecutar backend y frontend en terminales separadas.
+
+Backend:
+
+```bash
+cd backend
+npm run dev
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Backend:
+
+```text
+http://localhost:3000
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+## Estado actual
+
+El sistema cuenta con:
+- Autenticación funcional.
+- Inicio de sesión.
+- JWT.
+- Roles `ADMIN` y `COORDINADOR`.
+- Gestión de usuarios.
+- Registro de usuarios.
+- Cambio de contraseña.
+- Gestión de alumnos.
+- Búsqueda de alumnos.
+- Filtros por grado y sección.
+- Edición y eliminación de alumnos.
+- PostgreSQL + Prisma.
+- Manejo centralizado de errores.
+- Interfaz React.
+
+## Próximas mejoras
+
+- Mejorar completamente el diseño responsive.
+- Agregar confirmaciones visuales.
+- Implementar paginación.
+- Validación de email.
+- Recuperación de contraseña.
+- Auditoría de acciones administrativas.
+- Pruebas automatizadas.
+- Configuración de entornos de producción.
+- Despliegue del frontend y backend.
 
 ## Autor
-- William Alexander Flores Cardona.
+
+Proyecto académico — Sistema de Gestión Escolar.
+
+**William Alexander Flores Cardona**

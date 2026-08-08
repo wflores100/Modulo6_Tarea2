@@ -1,10 +1,14 @@
 import * as AlumnoService from '../services/alumno.service.js';
 
-// getAll - Devuelve todos los alumnos, con opción de filtrar por grado
+// getAll - Devuelve todos los alumnos, con opción de filtrar por grado y sección
 export const getAll = async (req, res) => {
-  const { grado } = req.query;
+  const { busqueda, grado, seccion } = req.query;
 
-  const alumnos = await AlumnoService.getAll({ grado });
+  const alumnos = await AlumnoService.getAll({
+    busqueda,
+    grado,
+    seccion,
+  });
 
   res.json(alumnos);
 };

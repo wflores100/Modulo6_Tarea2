@@ -5,10 +5,28 @@ import * as AuthController from '../controllers/auth.controller.js';
 
 const router = Router();
 
-router.post('/registro', AuthController.registrar);
+router.post(
+  '/registro',
+  requireAuth,
+  requireRole('ADMIN'),
+  AuthController.registrar,
+);
+
 router.post('/login', AuthController.login);
-router.get('/perfil', requireAuth, AuthController.perfil);
-router.patch('/usuarios/:id/password', AuthController.cambiarPassword);
+
+router.get(
+  '/perfil',
+  requireAuth,
+  AuthController.perfil,
+);
+
+router.patch(
+  '/usuarios/:id/password',
+  requireAuth,
+  requireRole('ADMIN'),
+  AuthController.cambiarPassword,
+);
+
 router.get(
   '/usuarios',
   requireAuth,

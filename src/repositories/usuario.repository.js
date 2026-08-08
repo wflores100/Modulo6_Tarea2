@@ -14,9 +14,19 @@ export const findById = (id) => {
   return prisma.usuario.findUnique({ where: { id } });
 };
 
-export const save = ({ nombre, email, passwordHash }) => {
+export const save = ({
+  nombre,
+  email,
+  passwordHash,
+  rol = 'COORDINADOR',
+}) => {
   return prisma.usuario.create({
-    data: { nombre, email, passwordHash },
+    data: {
+      nombre,
+      email,
+      passwordHash,
+      rol,
+    },
   });
 };
 

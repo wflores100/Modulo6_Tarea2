@@ -6,6 +6,7 @@ import cors from 'cors';
 import { errorHandler } from './src/middlewares/errorHandler.js';
 
 const app = express();
+
 const PORT = process.env.PORT ?? 3000;
 
 app.use(
@@ -19,10 +20,10 @@ app.use(express.json());
 // Rutas para alumnos
 app.use('/api/alumnos', alumnosRoutes);
 
-// Rutas de autenticacion
+// Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
-// Captura cualquier solicitud que no coincida con las rutas definidas
+// Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({
     error: 'Ruta no encontrada',

@@ -5,7 +5,9 @@ export const registrar = async (req, res) => {
     nombre: req.body?.nombre,
     email: req.body?.email,
     password: req.body?.password,
+    rol: req.body?.rol,
   });
+
   res.status(201).json(usuario);
 };
 
@@ -14,6 +16,7 @@ export const login = async (req, res) => {
     email: req.body?.email,
     password: req.body?.password,
   });
+
   res.json(usuario);
 };
 
@@ -22,6 +25,7 @@ export const cambiarPassword = async (req, res) => {
     passwordActual: req.body?.passwordActual,
     passwordNueva: req.body?.passwordNueva,
   });
+
   res.status(204).send();
 };
 
@@ -33,5 +37,6 @@ export const perfil = async (req, res) => {
 
 export const listarUsuarios = async (req, res) => {
   const usuarios = await AuthService.listarUsuarios();
+
   res.json(usuarios);
 };

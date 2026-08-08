@@ -1,9 +1,17 @@
 import { AppError } from '../errors/appError.js';
 import * as AlumnoRepository from '../repositories/alumno.repository.js';
 
-// getAll - Devuelve todos los alumnos, con opción de filtrar por grado
-export const getAll = async ({ grado } = {}) => {
-  return await AlumnoRepository.findAll({ grado });
+// getAll - Devuelve todos los alumnos, con opción de filtrar por grado y sección
+export const getAll = async ({
+  busqueda,
+  grado,
+  seccion,
+} = {}) => {
+  return await AlumnoRepository.findAll({
+    busqueda,
+    grado,
+    seccion,
+  });
 };
 
 // getById - Devuelve un alumno por su ID
